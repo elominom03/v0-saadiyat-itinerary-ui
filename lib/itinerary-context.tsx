@@ -4,8 +4,10 @@ import React, { createContext, useContext, useState, ReactNode } from "react"
 import type { GenerateItineraryResponse } from "./api-client"
 
 interface ItineraryContextType {
-  itineraryData: GenerateItineraryResponse | null
-  setItineraryData: (data: GenerateItineraryResponse | null) => void
+  itinerary: GenerateItineraryResponse | null
+  setItinerary: (data: GenerateItineraryResponse | null) => void
+  error: string | null
+  setError: (error: string | null) => void
   isLoading: boolean
   setIsLoading: (loading: boolean) => void
 }
@@ -13,14 +15,17 @@ interface ItineraryContextType {
 const ItineraryContext = createContext<ItineraryContextType | undefined>(undefined)
 
 export function ItineraryProvider({ children }: { children: ReactNode }) {
-  const [itineraryData, setItineraryData] = useState<GenerateItineraryResponse | null>(null)
+  const [itinerary, setItinerary] = useState<GenerateItineraryResponse | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   return (
     <ItineraryContext.Provider
       value={{
-        itineraryData,
-        setItineraryData,
+        itinerary,
+        setItinerary,
+        error,
+        setError,
         isLoading,
         setIsLoading
       }}

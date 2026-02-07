@@ -23,13 +23,13 @@ interface ItineraryViewProps {
 
 export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
   const { t } = useI18n()
-  const { itinerary } = useItinerary()
+  const { itinerary: itineraryData } = useItinerary()
   const [selectedExperience, setSelectedExperience] =
     useState<Experience | null>(null)
   const [activeDay, setActiveDay] = useState(1)
   const [viewMode, setViewMode] = useState<"list" | "map">("list")
 
-  if (!itinerary || !itinerary.days || itinerary.days.length === 0) {
+  if (!itineraryData || !itineraryData.itinerary || itineraryData.itinerary.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-muted-foreground">{t("itinerary.noItinerary")}</p>
@@ -37,14 +37,22 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
     )
   }
 
-  const currentDay = itinerary.days.find((d: any) => d.dayNumber === activeDay)
+  const days = itineraryData.itinerary
+  const currentDay = days.find((d: any) => d.day === activeDay)
+  
+  // Convert time slots to attractions array
+  const currentDayAttractions = currentDay ? [
+    currentDay.morning,
+    currentDay.afternoon,
+    currentDay.evening
+  ].filter(Boolean) : []
 
   const handleExportKML = async () => {
     try {
       const response = await fetch("/api/itinerary/export-kml", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itinerary }),
+        body: JSON.stringify({ itinerary: itineraryData }),
       })
       if (!response.ok) throw new Error("Failed to export KML")
       const blob = await response.blob()
@@ -71,7 +79,7 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
               Your Itinerary
             </h1>
             <p className="text-xs text-muted-foreground">
-              {itinerary.days.length} {t("itinerary.days")}
+              {days.length} {t("itinerary.days")}
             </p>
           </div>
           <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
@@ -106,34 +114,34 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
       <div className="mx-auto max-w-2xl px-6 py-6">
         {/* Day tabs */}
         <div className="mb-6 flex gap-2">
-          {itinerary.days.map((day: any) => (
+          {days.map((dayItem: any) => (
             <button
-              key={day.dayNumber}
+              key={dayItem.day}
               type="button"
-              onClick={() => setActiveDay(day.dayNumber)}
+              onClick={() => setActiveDay(dayItem.day)}
               className={`flex flex-col items-center rounded-xl border-2 px-5 py-3 transition-all duration-200 ${
-                activeDay === day.dayNumber
+                activeDay === dayItem.day
                   ? "border-primary bg-primary/5"
                   : "border-border bg-card hover:border-primary/20"
               }`}
             >
               <span
                 className={`text-xs font-medium ${
-                  activeDay === day.dayNumber
+                  activeDay === dayItem.day
                     ? "text-primary"
                     : "text-muted-foreground"
                 }`}
               >
-                {t("itinerary.day")} {day.dayNumber}
+                {t("itinerary.day")} {dayItem.day}
               </span>
               <span
                 className={`text-[10px] ${
-                  activeDay === day.dayNumber
+                  activeDay === dayItem.day
                     ? "text-foreground"
                     : "text-muted-foreground"
                 }`}
               >
-                {day.date || ""}
+                {new Date(dayItem.date).toLocaleDateString()}
               </span>
             </button>
           ))}
@@ -142,13 +150,13 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
         {viewMode === "list" ? (
           <>
             {/* Timeline */}
-            {currentDay && (
+            {currentDayAttractions.length > 0 && (
               <div className="relative flex flex-col gap-6">
                 {/* Timeline line */}
                 <div className="absolute bottom-0 left-5 top-0 w-px bg-border sm:left-6" />
 
-                {currentDay.attractions.map((attraction: any, index: number) => (
-                  <div key={attraction.id} className="relative flex gap-4 sm:gap-5">
+                {currentDayAttractions.map((slot: any, index: number) => (
+                  <div key={`${slot.attractionId}-${index}`} className="relative flex gap-4 sm:gap-5">
                     {/* Timeline dot */}
                     <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background sm:h-12 sm:w-12">
                       <span className="text-xs font-semibold text-primary">
@@ -159,8 +167,27 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
                     {/* Card */}
                     <div className="flex-1 pb-2">
                       <ItineraryCard
-                        experience={attraction}
-                        onClick={() => setSelectedExperience(attraction)}
+                        experience={{
+                          id: slot?.attractionId || `slot-${index}`,
+                          name: slot?.attractionName || "Attraction",
+                          timeRange: slot?.timeRange || "",
+                          shortDescription: slot?.whyChosen || slot?.shortDescription || "",
+                          duration: slot?.duration || "",
+                          tips: slot?.tips || [],
+                          tags: slot?.tags || [],
+                          image: slot?.image || "/images/louvre.jpg",
+                          indoor: slot?.indoor !== undefined ? slot.indoor : undefined,
+                          ticketRequired: slot?.ticketRequired || false,
+                          walkingDistance: slot?.walkingDistance || ""
+                        }}
+                        onClick={() => setSelectedExperience({
+                          id: slot?.attractionId || `slot-${index}`,
+                          time: slot?.timeRange || "",
+                          title: slot?.attractionName || "Attraction",
+                          description: slot?.whyChosen || slot?.shortDescription || "",
+                          duration: slot?.duration || "",
+                          tips: slot?.tips || []
+                        })}
                       />
                     </div>
                   </div>
@@ -224,7 +251,7 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
           <div className="space-y-4">
             {currentDay && (
               <>
-                <ItineraryMap itinerary={{...itinerary, days: [currentDay]}} />
+                <ItineraryMap itinerary={{...itineraryData, itinerary: [currentDay]}} />
                 <div className="rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
                   <p className="font-medium mb-2">Map Legend:</p>
                   <ul className="space-y-1 ml-4">

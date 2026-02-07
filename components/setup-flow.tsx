@@ -52,15 +52,19 @@ export function SetupFlow({ onComplete }: SetupFlowProps) {
   const handleGenerate = async () => {
     setIsGenerating(true)
     try {
+      // Convert datetime-local format to ISO 8601
+      const arrivalISO = arrivalDate ? new Date(arrivalDate).toISOString() : ""
+      const departureISO = departureDate ? new Date(departureDate).toISOString() : ""
+
       const result = await generateItinerary({
-        arrivalTime: arrivalDate,
-        departureTime: departureDate,
+        arrivalTime: arrivalISO,
+        departureTime: departureISO,
         hotelLocation,
         pace: selectedPace,
         interests: selectedInterests,
         preferences: {
           dietary: selectedExtras.includes("halal") ? ["halal"] : [],
-          accessibility: selectedExtras.includes("wheelchair") ? ["wheelchair"] : [],
+          lowWalking: selectedExtras.includes("wheelchair"),
         },
         tripType,
         familyMembers: tripType === "family" ? familyMembers : undefined,
@@ -69,7 +73,7 @@ export function SetupFlow({ onComplete }: SetupFlowProps) {
           places: extractedPlaces
         } : undefined,
       })
-      setItinerary(result.itinerary)
+      setItinerary(result)
       onComplete()
     } catch (error) {
       console.error("Failed to generate itinerary:", error)

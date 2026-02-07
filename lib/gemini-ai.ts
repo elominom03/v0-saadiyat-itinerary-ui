@@ -32,6 +32,12 @@ export interface TimeSlot {
   duration: string
   whyChosen: string
   tips?: string[]
+  lat?: number
+  lng?: number
+  googleRating?: number
+  googleReviews?: number
+  shortDescription?: string
+  image?: string
 }
 
 export interface DayPlan {
@@ -496,7 +502,13 @@ export function generateHeuristicItinerary(
           whyChosen: morningAttr.interestScore > 0 
             ? `Matches your interests in ${preferences.interests.slice(0, 2).join(", ")}.`
             : `Popular morning attraction with ${morningAttr.crowdLevel} crowds.`,
-          tips: morningAttr.tips
+          tips: morningAttr.tips,
+          lat: morningAttr.lat,
+          lng: morningAttr.lng,
+          googleRating: morningAttr.googleRating,
+          googleReviews: morningAttr.googleReviews,
+          shortDescription: morningAttr.shortDescription,
+          image: morningAttr.image
         }
       }
     }
@@ -518,7 +530,13 @@ export function generateHeuristicItinerary(
           whyChosen: afternoonAttr.category === "dining" || afternoonAttr.category === "cafe"
             ? "Perfect spot for lunch and relaxation."
             : "Recommended for afternoon visit.",
-          tips: afternoonAttr.tips
+          tips: afternoonAttr.tips,
+          lat: afternoonAttr.lat,
+          lng: afternoonAttr.lng,
+          googleRating: afternoonAttr.googleRating,
+          googleReviews: afternoonAttr.googleReviews,
+          shortDescription: afternoonAttr.shortDescription,
+          image: afternoonAttr.image
         }
       }
     }
@@ -539,7 +557,13 @@ export function generateHeuristicItinerary(
         whyChosen: eveningAttr.category === "beach" 
           ? "Perfect for evening relaxation and sunset views."
           : "Great way to end your day.",
-        tips: eveningAttr.tips
+        tips: eveningAttr.tips,
+        lat: eveningAttr.lat,
+        lng: eveningAttr.lng,
+        googleRating: eveningAttr.googleRating,
+        googleReviews: eveningAttr.googleReviews,
+        shortDescription: eveningAttr.shortDescription,
+        image: eveningAttr.image
       }
     }
 

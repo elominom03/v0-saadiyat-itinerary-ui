@@ -8,8 +8,8 @@ export interface FamilyMember {
 }
 
 export interface GenerateItineraryRequest {
-  arrivalTime: string // ISO datetime
-  departureTime: string // ISO datetime
+  arrivalTime: string // ISO 8601 datetime
+  departureTime: string // ISO 8601 datetime
   hotelLocation?: string
   pace: "relaxed" | "balanced" | "maximize"
   interests: string[]

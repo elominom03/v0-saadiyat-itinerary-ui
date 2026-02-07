@@ -163,13 +163,29 @@ export function ItineraryMap({ itinerary }: ItineraryMapProps) {
 
   // Extract all experiences with coordinates
   const markers: MarkerData[] = []
-  itinerary.forEach((day) => {
-    day.experiences.forEach((exp, index) => {
-      if (exp.lat && exp.lng) {
+  itinerary.forEach((day: any) => {
+    // Handle both old format (day.experiences) and new format (day.morning/afternoon/evening)
+    const timeSlots = day.experiences || [day.morning, day.afternoon, day.evening].filter(Boolean)
+    
+    timeSlots.forEach((exp: any, index: number) => {
+      // Convert time slot to experience format if needed
+      const experience = exp.attractionName ? {
+        id: exp.attractionId,
+        name: exp.attractionName,
+        timeRange: exp.timeRange,
+        duration: exp.duration,
+        shortDescription: exp.whyChosen,
+        lat: exp.lat,
+        lng: exp.lng,
+        googleRating: exp.googleRating,
+        googleReviews: exp.googleReviews
+      } : exp
+      
+      if (experience.lat && experience.lng) {
         markers.push({
-          experience: exp,
+          experience: experience,
           day: day.day,
-          position: { lat: exp.lat, lng: exp.lng },
+          position: { lat: experience.lat, lng: experience.lng },
           label: `Day ${day.day} - Stop ${index + 1}`
         })
       }
