@@ -1,4 +1,5 @@
 import { generateText, Output } from "ai"
+import { openai } from "@ai-sdk/openai"
 import { z } from "zod"
 import { allExperiences } from "@/lib/mock-data"
 
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
   const days = Math.max(1, Math.ceil(hours / 12))
 
   const { output } = await generateText({
-    model: "openai/gpt-4o-mini",
+    model: openai("gpt-4o-mini"),
     output: Output.object({
       schema: itineraryOutputSchema,
     }),
