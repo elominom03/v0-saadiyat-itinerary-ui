@@ -23,11 +23,22 @@ const interestIcons: Record<string, React.ComponentType<{ className?: string }>>
   shopping: ShoppingBag,
 }
 
+const artPreferences = [
+  { id: "modern", label: "Modern & Contemporary" },
+  { id: "classical", label: "Classical & Historical" },
+  { id: "digital", label: "Digital & Immersive" },
+  { id: "islamic", label: "Islamic & Calligraphy" },
+  { id: "photography", label: "Photography" },
+  { id: "sculpture", label: "Sculpture & Installation" },
+]
+
 interface InterestsProps {
   selectedInterests: string[]
   selectedExtras: string[]
+  selectedArtPreferences: string[]
   onInterestToggle: (id: string) => void
   onExtraToggle: (id: string) => void
+  onArtPreferenceToggle: (id: string) => void
   onGenerate: () => void
   onBack: () => void
 }
@@ -35,11 +46,15 @@ interface InterestsProps {
 export function StepInterests({
   selectedInterests,
   selectedExtras,
+  selectedArtPreferences,
   onInterestToggle,
   onExtraToggle,
+  onArtPreferenceToggle,
   onGenerate,
   onBack,
 }: InterestsProps) {
+  const showArtPrefs = selectedInterests.includes("art")
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
@@ -90,6 +105,38 @@ export function StepInterests({
           )
         })}
       </div>
+
+      {/* Art preferences -- shown when "Art" is selected */}
+      {showArtPrefs && (
+        <div className="flex flex-col gap-3">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Art preferences
+          </p>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Help us pick the right museums and galleries for you.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {artPreferences.map((pref) => {
+              const isSelected = selectedArtPreferences.includes(pref.id)
+              return (
+                <button
+                  key={pref.id}
+                  type="button"
+                  onClick={() => onArtPreferenceToggle(pref.id)}
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-xs font-medium transition-all duration-200",
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-muted-foreground hover:border-primary/30"
+                  )}
+                >
+                  {pref.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3">
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">

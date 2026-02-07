@@ -1,21 +1,28 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Loader2 } from "lucide-react"
+import type { UserPreferences } from "@/lib/types"
+import type { DayItinerary } from "@/lib/mock-data"
 
 interface LoadingScreenProps {
-  onComplete: () => void
+  preferences: UserPreferences
+  onComplete: (itinerary: DayItinerary[], summary: string) => void
+  onError: () => void
 }
 
 const messages = [
-  "Designing your Saadiyat experience...",
-  "Curating the best stops for you...",
+  "Analyzing your preferences...",
+  "Finding the best stops for your group...",
+  "Matching art and culture to your tastes...",
+  "Building your personalized timeline...",
   "Optimizing for a smooth layover...",
   "Almost ready...",
 ]
 
-export function LoadingScreen({ onComplete }: LoadingScreenProps) {
+export function LoadingScreen({ preferences, onComplete, onError }: LoadingScreenProps) {
   const [messageIndex, setMessageIndex] = useState(0)
+  const hasStarted = useRef(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -23,17 +30,34 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
         if (prev < messages.length - 1) return prev + 1
         return prev
       })
-    }, 1200)
+    }, 1500)
 
-    const timeout = setTimeout(() => {
-      onComplete()
-    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
 
-    return () => {
-      clearInterval(interval)
-      clearTimeout(timeout)
+  useEffect(() => {
+    if (hasStarted.current) return
+    hasStarted.current = true
+
+    async function generate() {
+      try {
+        const res = await fetch("/api/generate-itinerary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ preferences }),
+        })
+
+        if (!res.ok) throw new Error("Failed to generate")
+
+        const data = await res.json()
+        onComplete(data.itinerary, data.summary)
+      } catch {
+        onError()
+      }
     }
-  }, [onComplete])
+
+    generate()
+  }, [preferences, onComplete, onError])
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-6">
@@ -43,7 +67,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
           {messages[messageIndex]}
         </p>
         <p className="text-xs text-muted-foreground">
-          Tailored to your preferences
+          AI is personalizing your Saadiyat experience
         </p>
       </div>
     </div>

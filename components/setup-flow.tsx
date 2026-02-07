@@ -3,12 +3,14 @@
 import { useState } from "react"
 import { StepIndicator } from "@/components/step-indicator"
 import { StepLayoverDetails } from "@/components/step-layover-details"
+import { StepGroupDetails } from "@/components/step-group-details"
 import { StepPaceSelection } from "@/components/step-pace-selection"
 import { StepInterests } from "@/components/step-interests"
+import type { UserPreferences } from "@/lib/types"
 import Image from "next/image"
 
 interface SetupFlowProps {
-  onComplete: () => void
+  onComplete: (preferences: UserPreferences) => void
 }
 
 export function SetupFlow({ onComplete }: SetupFlowProps) {
@@ -16,9 +18,13 @@ export function SetupFlow({ onComplete }: SetupFlowProps) {
   const [arrivalDate, setArrivalDate] = useState("")
   const [departureDate, setDepartureDate] = useState("")
   const [hotelLocation, setHotelLocation] = useState("")
+  const [groupType, setGroupType] = useState("")
+  const [groupSize, setGroupSize] = useState("")
+  const [childrenCount, setChildrenCount] = useState("")
   const [selectedPace, setSelectedPace] = useState("")
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [selectedExtras, setSelectedExtras] = useState<string[]>([])
+  const [selectedArtPreferences, setSelectedArtPreferences] = useState<string[]>([])
 
   const toggleInterest = (id: string) => {
     setSelectedInterests((prev) =>
@@ -30,6 +36,27 @@ export function SetupFlow({ onComplete }: SetupFlowProps) {
     setSelectedExtras((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     )
+  }
+
+  const toggleArtPreference = (id: string) => {
+    setSelectedArtPreferences((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    )
+  }
+
+  const handleGenerate = () => {
+    onComplete({
+      arrivalDate,
+      departureDate,
+      hotelLocation,
+      groupType,
+      groupSize,
+      childrenCount,
+      selectedPace,
+      selectedInterests,
+      selectedExtras,
+      selectedArtPreferences,
+    })
   }
 
   return (
@@ -79,7 +106,7 @@ export function SetupFlow({ onComplete }: SetupFlowProps) {
         <div className="flex flex-1 flex-col px-6 py-8 sm:px-10 lg:justify-center lg:px-16 xl:px-20">
           <div className="mx-auto w-full max-w-md">
             <div className="mb-8">
-              <StepIndicator currentStep={step} totalSteps={3} />
+              <StepIndicator currentStep={step} totalSteps={4} />
             </div>
 
             <div className="transition-all duration-300">
@@ -95,21 +122,35 @@ export function SetupFlow({ onComplete }: SetupFlowProps) {
                 />
               )}
               {step === 1 && (
-                <StepPaceSelection
-                  selectedPace={selectedPace}
-                  onPaceChange={setSelectedPace}
+                <StepGroupDetails
+                  groupType={groupType}
+                  groupSize={groupSize}
+                  childrenCount={childrenCount}
+                  onGroupTypeChange={setGroupType}
+                  onGroupSizeChange={setGroupSize}
+                  onChildrenCountChange={setChildrenCount}
                   onNext={() => setStep(2)}
                   onBack={() => setStep(0)}
                 />
               )}
               {step === 2 && (
+                <StepPaceSelection
+                  selectedPace={selectedPace}
+                  onPaceChange={setSelectedPace}
+                  onNext={() => setStep(3)}
+                  onBack={() => setStep(1)}
+                />
+              )}
+              {step === 3 && (
                 <StepInterests
                   selectedInterests={selectedInterests}
                   selectedExtras={selectedExtras}
+                  selectedArtPreferences={selectedArtPreferences}
                   onInterestToggle={toggleInterest}
                   onExtraToggle={toggleExtra}
-                  onGenerate={onComplete}
-                  onBack={() => setStep(1)}
+                  onArtPreferenceToggle={toggleArtPreference}
+                  onGenerate={handleGenerate}
+                  onBack={() => setStep(2)}
                 />
               )}
             </div>

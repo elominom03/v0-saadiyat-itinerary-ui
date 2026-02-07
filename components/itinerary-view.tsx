@@ -6,25 +6,26 @@ import { ItineraryCard } from "@/components/itinerary-card"
 import { ExperienceModal } from "@/components/experience-modal"
 import { MapView } from "@/components/map-view"
 import type { DayItinerary, Experience } from "@/lib/mock-data"
-import { mockItinerary } from "@/lib/mock-data"
 import {
   RefreshCw,
   UtensilsCrossed,
   Settings2,
   MapPin,
   List,
+  Sparkles,
 } from "lucide-react"
 
 interface ItineraryViewProps {
+  itinerary: DayItinerary[]
+  summary: string
   onEditPreferences: () => void
 }
 
-export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
+export function ItineraryView({ itinerary, summary, onEditPreferences }: ItineraryViewProps) {
   const [selectedExperience, setSelectedExperience] =
     useState<Experience | null>(null)
   const [activeDay, setActiveDay] = useState(1)
   const [viewMode, setViewMode] = useState<"list" | "map">("list")
-  const itinerary = mockItinerary
 
   const currentDay = itinerary.find((d) => d.day === activeDay)
 
@@ -38,7 +39,7 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
               Your Itinerary
             </h1>
             <p className="text-xs text-muted-foreground">
-              {itinerary.length} days on Saadiyat Island
+              {itinerary.length} day{itinerary.length > 1 ? "s" : ""} on Saadiyat Island
             </p>
           </div>
           <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
@@ -71,6 +72,14 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
       </header>
 
       <div className="mx-auto max-w-2xl px-6 py-6">
+        {/* AI Summary */}
+        {summary && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <p className="text-sm leading-relaxed text-foreground">{summary}</p>
+          </div>
+        )}
+
         {/* Day tabs */}
         <div className="mb-6 flex gap-2">
           {itinerary.map((day) => (
@@ -171,8 +180,8 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
 
             <div className="mt-8 rounded-xl border border-border bg-card p-4 text-center">
               <p className="text-xs leading-relaxed text-muted-foreground">
-                You can always regenerate — nothing is locked in. Tap any
-                experience to learn more or swap it out.
+                This itinerary was personalized by AI based on your preferences.
+                Tap any experience to learn more, or edit preferences to regenerate.
               </p>
             </div>
           </>
