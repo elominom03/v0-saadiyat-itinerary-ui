@@ -251,7 +251,7 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
           <div className="space-y-4">
             {currentDay && (
               <>
-                <ItineraryMap itinerary={{...itineraryData, itinerary: [currentDay]}} />
+                <ItineraryMap itinerary={[currentDay]} />
                 <div className="rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
                   <p className="font-medium mb-2">Map Legend:</p>
                   <ul className="space-y-1 ml-4">

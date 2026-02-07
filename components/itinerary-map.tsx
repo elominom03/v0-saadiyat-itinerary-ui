@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from "react"
 import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from "@vis.gl/react-google-maps"
-import type { Experience, DayItinerary } from "@/lib/mock-data"
 
 interface ItineraryMapProps {
-  itinerary: DayItinerary[]
+  itinerary: any[]
 }
 
 interface MarkerData {
-  experience: Experience
+  experience: any
   day: number
   position: { lat: number; lng: number }
   label: string
