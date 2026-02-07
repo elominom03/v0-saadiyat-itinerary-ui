@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react"
 import type { UserPreferences } from "@/lib/types"
 import type { DayItinerary, Experience } from "@/lib/mock-data"
 import { allExperiences } from "@/lib/mock-data"
+import { generateItineraryFromBackend } from "@/lib/api-client"
 
 interface LoadingScreenProps {
   preferences: UserPreferences
@@ -33,12 +34,11 @@ function buildHardcodedItinerary(preferences: UserPreferences): { itinerary: Day
   const likesBeach = preferences.selectedInterests.includes("Beach")
   const likesFood = preferences.selectedInterests.includes("Food")
 
-  // Build Day 1
   const day1Stops: { id: string; timeRange: string; whyChosen: string }[] = [
     {
       id: "museum-cafe-louvre",
       timeRange: "09:00 - 09:45",
-      whyChosen: "Start your day with specialty coffee right inside the Louvre campus to ease into the island.",
+      whyChosen: "Start your day with specialty coffee right inside the Louvre campus.",
     },
     {
       id: "louvre-abu-dhabi",
@@ -55,35 +55,11 @@ function buildHardcodedItinerary(preferences: UserPreferences): { itinerary: Day
         : "Elegant French cuisine steps from the Louvre -- perfect for a refined lunch.",
     },
     ...(isFamily
-      ? [
-          {
-            id: "natural-history-museum",
-            timeRange: "14:30 - 16:30",
-            whyChosen: "The kids will love the dinosaur exhibits and interactive displays.",
-          },
-        ]
-      : [
-          {
-            id: "manarat-al-saadiyat",
-            timeRange: "14:30 - 16:00",
-            whyChosen: "A rotating gallery space showcasing contemporary exhibitions from the UAE and beyond.",
-          },
-        ]),
+      ? [{ id: "natural-history-museum", timeRange: "14:30 - 16:30", whyChosen: "The kids will love the dinosaur exhibits and interactive displays." }]
+      : [{ id: "manarat-al-saadiyat", timeRange: "14:30 - 16:00", whyChosen: "A rotating gallery space showcasing contemporary exhibitions." }]),
     ...(likesBeach
-      ? [
-          {
-            id: "saadiyat-beach-club",
-            timeRange: "16:30 - 18:30",
-            whyChosen: "Unwind on pristine white sand with premium service after a culture-rich morning.",
-          },
-        ]
-      : [
-          {
-            id: "mamsha-al-saadiyat",
-            timeRange: "16:30 - 18:00",
-            whyChosen: "A scenic beachfront promenade with boutiques and ocean views for a relaxing late afternoon.",
-          },
-        ]),
+      ? [{ id: "saadiyat-beach-club", timeRange: "16:30 - 18:30", whyChosen: "Unwind on pristine white sand with premium service after a culture-rich morning." }]
+      : [{ id: "mamsha-al-saadiyat", timeRange: "16:30 - 18:00", whyChosen: "A scenic beachfront promenade with boutiques and ocean views." }]),
     {
       id: isFriends ? "buddha-bar-beach" : isCouples ? "tean" : "hawksbill",
       timeRange: "19:00 - 20:30",
@@ -95,13 +71,8 @@ function buildHardcodedItinerary(preferences: UserPreferences): { itinerary: Day
     },
   ]
 
-  // Build Day 2
   const day2Stops: { id: string; timeRange: string; whyChosen: string }[] = [
-    {
-      id: "nayzak-cafe",
-      timeRange: "09:00 - 09:45",
-      whyChosen: "A local favorite for artisanal coffee and fresh pastries to fuel day two.",
-    },
+    { id: "nayzak-cafe", timeRange: "09:00 - 09:45", whyChosen: "A local favorite for artisanal coffee and fresh pastries." },
     {
       id: isFamily ? "teamlab-phenomena" : "abrahamic-family-house",
       timeRange: "10:00 - 12:00",
@@ -112,27 +83,15 @@ function buildHardcodedItinerary(preferences: UserPreferences): { itinerary: Day
     {
       id: likesFood ? "beirut-sur-mer" : "toto-saadiyat",
       timeRange: "12:30 - 13:45",
-      whyChosen: likesFood
-        ? "Authentic Lebanese seafood right by the water -- a foodie highlight."
-        : "Relaxed Italian dining with ocean views, perfect for a leisurely lunch.",
+      whyChosen: likesFood ? "Authentic Lebanese seafood right by the water." : "Relaxed Italian dining with ocean views.",
     },
-    {
-      id: "bassam-freiha-art-foundation",
-      timeRange: "14:15 - 15:45",
-      whyChosen: "A hidden gem showcasing bold contemporary art from the Arab world and beyond.",
-    },
+    { id: "bassam-freiha-art-foundation", timeRange: "14:15 - 15:45", whyChosen: "A hidden gem showcasing bold contemporary art from the Arab world." },
     {
       id: likesBeach ? "kai-beach" : "saadiyat-grove",
       timeRange: "16:00 - 17:30",
-      whyChosen: likesBeach
-        ? "A serene, less-crowded beach to soak in the last rays before your flight."
-        : "Browse boutique shops and pick up souvenirs at Saadiyat's lifestyle district.",
+      whyChosen: likesBeach ? "A serene, less-crowded beach to soak in the last rays." : "Browse boutique shops and pick up souvenirs.",
     },
-    {
-      id: "sal-saadiyat",
-      timeRange: "18:00 - 19:30",
-      whyChosen: "End your Saadiyat experience with Spanish-Mediterranean flavors and ocean sunset views.",
-    },
+    { id: "sal-saadiyat", timeRange: "18:00 - 19:30", whyChosen: "End your Saadiyat experience with Spanish-Mediterranean flavors and ocean sunset views." },
   ]
 
   const mapStops = (stops: { id: string; timeRange: string; whyChosen: string }[]) =>
@@ -152,7 +111,6 @@ function buildHardcodedItinerary(preferences: UserPreferences): { itinerary: Day
   const itinerary: DayItinerary[] = [
     { day: 1, date: "Day 1 - Culture & Discovery", experiences: mapStops(day1Stops) },
   ]
-
   if (days >= 2) {
     itinerary.push({ day: 2, date: "Day 2 - Art, Beach & Flavors", experiences: mapStops(day2Stops) })
   }
@@ -169,27 +127,30 @@ export function LoadingScreen({ preferences, onComplete, onError }: LoadingScree
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setMessageIndex((prev) => {
-        if (prev < messages.length - 1) return prev + 1
-        return prev
-      })
+      setMessageIndex((prev) => (prev < messages.length - 1 ? prev + 1 : prev))
     }, 1500)
-
     return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
-    // Simulate a short delay to show loading messages, then return hardcoded itinerary
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       if (hasStarted.current) return
       hasStarted.current = true
+
       try {
-        const { itinerary, summary } = buildHardcodedItinerary(preferences)
-        onComplete(itinerary, summary)
+        // Try the real backend first
+        const result = await generateItineraryFromBackend(preferences)
+        onComplete(result.itinerary, result.summary)
       } catch {
-        onError()
+        // Backend not available -- use hardcoded demo data
+        try {
+          const { itinerary, summary } = buildHardcodedItinerary(preferences)
+          onComplete(itinerary, summary)
+        } catch {
+          onError()
+        }
       }
-    }, 3000)
+    }, 2500)
 
     return () => clearTimeout(timer)
   }, [preferences, onComplete, onError])
