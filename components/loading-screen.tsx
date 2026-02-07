@@ -5,7 +5,6 @@ import { Loader2 } from "lucide-react"
 import type { UserPreferences } from "@/lib/types"
 import type { DayItinerary, Experience } from "@/lib/mock-data"
 import { allExperiences } from "@/lib/mock-data"
-import { generateItineraryFromBackend } from "@/lib/api-client"
 
 interface LoadingScreenProps {
   preferences: UserPreferences
@@ -133,22 +132,15 @@ export function LoadingScreen({ preferences, onComplete, onError }: LoadingScree
   }, [])
 
   useEffect(() => {
-    const timer = setTimeout(async () => {
+    const timer = setTimeout(() => {
       if (hasStarted.current) return
       hasStarted.current = true
 
       try {
-        // Try the real backend first
-        const result = await generateItineraryFromBackend(preferences)
-        onComplete(result.itinerary, result.summary)
+        const { itinerary, summary } = buildHardcodedItinerary(preferences)
+        onComplete(itinerary, summary)
       } catch {
-        // Backend not available -- use hardcoded demo data
-        try {
-          const { itinerary, summary } = buildHardcodedItinerary(preferences)
-          onComplete(itinerary, summary)
-        } catch {
-          onError()
-        }
+        onError()
       }
     }, 2500)
 
