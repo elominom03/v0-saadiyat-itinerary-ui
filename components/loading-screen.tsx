@@ -179,11 +179,10 @@ export function LoadingScreen({ preferences, onComplete, onError }: LoadingScree
   }, [])
 
   useEffect(() => {
-    if (hasStarted.current) return
-    hasStarted.current = true
-
     // Simulate a short delay to show loading messages, then return hardcoded itinerary
     const timer = setTimeout(() => {
+      if (hasStarted.current) return
+      hasStarted.current = true
       try {
         const { itinerary, summary } = buildHardcodedItinerary(preferences)
         onComplete(itinerary, summary)
