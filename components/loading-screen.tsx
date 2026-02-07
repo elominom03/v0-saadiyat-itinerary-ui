@@ -1,7 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Spinner } from "@/components/ui/spinner"
+
+import { useEffect, useState } from "react"
+import { Loader2 } from "lucide-react"
 
 interface LoadingScreenProps {
   onComplete: () => void
@@ -37,7 +39,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-6">
-      <Spinner className="h-8 w-8 text-primary" />
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
       <div className="flex flex-col items-center gap-2 text-center">
         <p className="text-sm font-medium text-foreground transition-all duration-300">
           {messages[messageIndex]}
