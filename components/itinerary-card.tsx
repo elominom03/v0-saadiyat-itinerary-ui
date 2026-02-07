@@ -43,6 +43,9 @@ export function ItineraryCard({ experience, onClick }: ItineraryCardProps) {
           <h3 className="font-serif text-lg font-medium leading-tight text-foreground">
             {experience.name}
           </h3>
+          {experience.cuisine && (
+            <span className="text-[11px] font-medium text-primary">{experience.cuisine}</span>
+          )}
           <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
             {experience.shortDescription}
           </p>

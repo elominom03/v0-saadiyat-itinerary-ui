@@ -52,6 +52,9 @@ export function ExperienceModal({
             <DrawerTitle className="font-serif text-2xl text-foreground">
               {experience.name}
             </DrawerTitle>
+            {experience.cuisine && (
+              <p className="text-sm font-medium text-primary">{experience.cuisine}</p>
+            )}
             <DrawerDescription className="sr-only">
               Details about {experience.name}
             </DrawerDescription>
