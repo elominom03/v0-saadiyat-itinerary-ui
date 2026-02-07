@@ -4,15 +4,17 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ItineraryCard } from "@/components/itinerary-card"
 import { ExperienceModal } from "@/components/experience-modal"
-import { MapView } from "@/components/map-view"
-import type { DayItinerary, Experience } from "@/lib/mock-data"
-import { mockItinerary } from "@/lib/mock-data"
+import { ItineraryMap } from "@/components/itinerary-map"
+import { useItinerary } from "@/lib/itinerary-context"
+import { useI18n } from "@/lib/i18n-context"
+import type { Experience } from "@/lib/mock-data"
 import {
   RefreshCw,
   UtensilsCrossed,
   Settings2,
   MapPin,
   List,
+  Download,
 } from "lucide-react"
 
 interface ItineraryViewProps {
@@ -20,13 +22,44 @@ interface ItineraryViewProps {
 }
 
 export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
+  const { t } = useI18n()
+  const { itinerary } = useItinerary()
   const [selectedExperience, setSelectedExperience] =
     useState<Experience | null>(null)
   const [activeDay, setActiveDay] = useState(1)
   const [viewMode, setViewMode] = useState<"list" | "map">("list")
-  const itinerary = mockItinerary
 
-  const currentDay = itinerary.find((d) => d.day === activeDay)
+  if (!itinerary || !itinerary.days || itinerary.days.length === 0) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">{t("itinerary.noItinerary")}</p>
+      </div>
+    )
+  }
+
+  const currentDay = itinerary.days.find((d: any) => d.dayNumber === activeDay)
+
+  const handleExportKML = async () => {
+    try {
+      const response = await fetch("/api/itinerary/export-kml", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itinerary }),
+      })
+      if (!response.ok) throw new Error("Failed to export KML")
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "saadiyat-itinerary.kml"
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Failed to export KML:", error)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,7 +71,7 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
               Your Itinerary
             </h1>
             <p className="text-xs text-muted-foreground">
-              {itinerary.length} days on Saadiyat Island
+              {itinerary.days.length} {t("itinerary.days")}
             </p>
           </div>
           <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
@@ -73,34 +106,34 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
       <div className="mx-auto max-w-2xl px-6 py-6">
         {/* Day tabs */}
         <div className="mb-6 flex gap-2">
-          {itinerary.map((day) => (
+          {itinerary.days.map((day: any) => (
             <button
-              key={day.day}
+              key={day.dayNumber}
               type="button"
-              onClick={() => setActiveDay(day.day)}
+              onClick={() => setActiveDay(day.dayNumber)}
               className={`flex flex-col items-center rounded-xl border-2 px-5 py-3 transition-all duration-200 ${
-                activeDay === day.day
+                activeDay === day.dayNumber
                   ? "border-primary bg-primary/5"
                   : "border-border bg-card hover:border-primary/20"
               }`}
             >
               <span
                 className={`text-xs font-medium ${
-                  activeDay === day.day
+                  activeDay === day.dayNumber
                     ? "text-primary"
                     : "text-muted-foreground"
                 }`}
               >
-                Day {day.day}
+                {t("itinerary.day")} {day.dayNumber}
               </span>
               <span
                 className={`text-[10px] ${
-                  activeDay === day.day
+                  activeDay === day.dayNumber
                     ? "text-foreground"
                     : "text-muted-foreground"
                 }`}
               >
-                {day.date}
+                {day.date || ""}
               </span>
             </button>
           ))}
@@ -114,8 +147,8 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
                 {/* Timeline line */}
                 <div className="absolute bottom-0 left-5 top-0 w-px bg-border sm:left-6" />
 
-                {currentDay.experiences.map((experience, index) => (
-                  <div key={experience.id} className="relative flex gap-4 sm:gap-5">
+                {currentDay.attractions.map((attraction: any, index: number) => (
+                  <div key={attraction.id} className="relative flex gap-4 sm:gap-5">
                     {/* Timeline dot */}
                     <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background sm:h-12 sm:w-12">
                       <span className="text-xs font-semibold text-primary">
@@ -126,8 +159,8 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
                     {/* Card */}
                     <div className="flex-1 pb-2">
                       <ItineraryCard
-                        experience={experience}
-                        onClick={() => setSelectedExperience(experience)}
+                        experience={attraction}
+                        onClick={() => setSelectedExperience(attraction)}
                       />
                     </div>
                   </div>
@@ -169,15 +202,40 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
               </div>
             </div>
 
-            <div className="mt-8 rounded-xl border border-border bg-card p-4 text-center">
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                You can always regenerate — nothing is locked in. Tap any
-                experience to learn more or swap it out.
-              </p>
+            <div className="mt-8 rounded-xl border border-border bg-card p-4">
+              <div className="flex items-start justify-between gap-4">
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  You can always regenerate — nothing is locked in. Tap any
+                  experience to learn more or swap it out.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportKML}
+                  className="shrink-0 gap-2 text-xs"
+                >
+                  <Download className="h-3 w-3" />
+                  Export KML
+                </Button>
+              </div>
             </div>
           </>
         ) : (
-          currentDay && <MapView experiences={currentDay.experiences} />
+          <div className="space-y-4">
+            {currentDay && (
+              <>
+                <ItineraryMap itinerary={{...itinerary, days: [currentDay]}} />
+                <div className="rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
+                  <p className="font-medium mb-2">Map Legend:</p>
+                  <ul className="space-y-1 ml-4">
+                    <li>• Blue markers = Attractions</li>
+                    <li>• Click markers for details</li>
+                    <li>• Routes shown between stops</li>
+                  </ul>
+                </div>
+              </>
+            )}
+          </div>
         )}
       </div>
 

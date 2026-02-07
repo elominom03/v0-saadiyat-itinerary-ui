@@ -18,6 +18,7 @@ interface LayoverDetailsProps {
   onDepartureChange: (val: string) => void
   onHotelChange: (val: string) => void
   onNext: () => void
+  onBack?: () => void
 }
 
 export function StepLayoverDetails({
@@ -28,6 +29,7 @@ export function StepLayoverDetails({
   onDepartureChange,
   onHotelChange,
   onNext,
+  onBack,
 }: LayoverDetailsProps) {
   const isValid = arrivalDate && departureDate && hotelLocation
 
@@ -93,13 +95,24 @@ export function StepLayoverDetails({
         </div>
       </div>
 
-      <Button
-        onClick={onNext}
-        disabled={!isValid}
-        className="h-12 w-full rounded-lg bg-primary text-base font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-40"
-      >
-        Plan My Saadiyat Stay
-      </Button>
+      <div className="flex gap-3">
+        {onBack && (
+          <Button
+            onClick={onBack}
+            variant="outline"
+            className="h-12 flex-1 rounded-lg text-base font-medium"
+          >
+            Back
+          </Button>
+        )}
+        <Button
+          onClick={onNext}
+          disabled={!isValid}
+          className="h-12 flex-1 rounded-lg bg-primary text-base font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-40"
+        >
+          {onBack ? "Continue" : "Plan My Saadiyat Stay"}
+        </Button>
+      </div>
     </div>
   )
 }

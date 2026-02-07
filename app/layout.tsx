@@ -1,6 +1,10 @@
 import React from "react"
 import type { Metadata, Viewport } from "next"
 import { DM_Sans, DM_Serif_Display } from "next/font/google"
+import { ItineraryProvider } from "@/lib/itinerary-context"
+import { I18nProvider } from "@/lib/i18n-context"
+import { Toaster } from "@/components/ui/sonner"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 import "./globals.css"
 
@@ -31,8 +35,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${_dmSans.variable} ${_dmSerif.variable}`}>
-      <body className="font-sans antialiased">{children}</body>
+    <html lang="en" className={`${_dmSans.variable} ${_dmSerif.variable}`} suppressHydrationWarning>
+      <body className="font-sans antialiased" suppressHydrationWarning>
+        <I18nProvider>
+          <ItineraryProvider>
+            <LanguageSwitcher />
+            {children}
+            <Toaster />
+          </ItineraryProvider>
+        </I18nProvider>
+      </body>
     </html>
   )
 }
