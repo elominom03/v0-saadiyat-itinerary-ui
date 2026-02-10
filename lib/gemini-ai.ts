@@ -365,7 +365,13 @@ export async function generateItineraryWithGemini(
           timeRange,
           duration: `${Math.floor(attraction.avgDuration / 60)}h ${attraction.avgDuration % 60}m`,
           whyChosen: `Selected for ${preferences.interests.join(", ")} interests. ${attraction.shortDescription || ""}`,
-          tips: attraction.tips
+          tips: attraction.tips,
+          lat: attraction.lat,
+          lng: attraction.lng,
+          googleRating: attraction.googleRating,
+          googleReviews: attraction.googleReviews,
+          shortDescription: attraction.shortDescription,
+          image: attraction.image
         }
       }
 

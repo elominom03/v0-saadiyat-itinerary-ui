@@ -133,7 +133,11 @@ function MapContent({ markers }: { markers: MarkerData[] }) {
 export function ItineraryMap({ itinerary }: ItineraryMapProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
+  console.log("🗺️ ItineraryMap - API Key:", apiKey ? `${apiKey.slice(0, 10)}...` : "MISSING")
+  console.log("🗺️ ItineraryMap - Itinerary days:", itinerary?.length)
+
   if (!apiKey) {
+    console.error("❌ Google Maps API key is missing!")
     return (
       <div className="rounded-lg border border-border bg-yellow-50 p-6 text-center">
         <h3 className="font-semibold text-yellow-900 mb-2">📍 Google Maps Not Configured</h3>
@@ -162,9 +166,12 @@ export function ItineraryMap({ itinerary }: ItineraryMapProps) {
 
   // Extract all experiences with coordinates
   const markers: MarkerData[] = []
+  console.log("🗺️ Processing itinerary for map:", itinerary)
+  
   itinerary.forEach((day: any) => {
     // Handle both old format (day.experiences) and new format (day.morning/afternoon/evening)
     const timeSlots = day.experiences || [day.morning, day.afternoon, day.evening].filter(Boolean)
+    console.log(`🗺️ Day ${day.day} time slots:`, timeSlots)
     
     timeSlots.forEach((exp: any, index: number) => {
       // Convert time slot to experience format if needed
@@ -180,6 +187,8 @@ export function ItineraryMap({ itinerary }: ItineraryMapProps) {
         googleReviews: exp.googleReviews
       } : exp
       
+      console.log(`🗺️ Experience ${index}:`, experience.name, `lat/lng:`, experience.lat, experience.lng)
+      
       if (experience.lat && experience.lng) {
         markers.push({
           experience: experience,
@@ -191,7 +200,10 @@ export function ItineraryMap({ itinerary }: ItineraryMapProps) {
     })
   })
 
+  console.log("🗺️ Total markers to display:", markers.length)
+
   if (markers.length === 0) {
+    console.warn("⚠️ No markers with valid coordinates found")
     return (
       <div className="rounded-lg border border-border bg-muted p-6 text-center">
         <p className="text-sm text-muted-foreground">

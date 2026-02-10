@@ -51,11 +51,14 @@ export function SetupFlow({ onComplete }: SetupFlowProps) {
 
   const handleGenerate = async () => {
     setIsGenerating(true)
+    setError(null)
+    
     try {
       // Convert datetime-local format to ISO 8601
       const arrivalISO = arrivalDate ? new Date(arrivalDate).toISOString() : ""
       const departureISO = departureDate ? new Date(departureDate).toISOString() : ""
 
+      console.log("🚀 Starting itinerary generation...")
       const result = await generateItinerary({
         arrivalTime: arrivalISO,
         departureTime: departureISO,
@@ -73,12 +76,24 @@ export function SetupFlow({ onComplete }: SetupFlowProps) {
           places: extractedPlaces
         } : undefined,
       })
+      
+      console.log("✅ Received itinerary from API:", result)
+      console.log("✅ Itinerary structure:", {
+        sessionId: result.sessionId,
+        daysCount: result.itinerary?.length,
+        firstDay: result.itinerary?.[0]
+      })
+      
       setItinerary(result)
+      console.log("✅ Called setItinerary - context should now have data")
+      
+      // Small delay to ensure context is updated
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
       onComplete()
     } catch (error) {
-      console.error("Failed to generate itinerary:", error)
+      console.error("❌ Failed to generate itinerary:", error)
       setError(error instanceof Error ? error.message : "Failed to generate itinerary")
-    } finally {
       setIsGenerating(false)
     }
   }

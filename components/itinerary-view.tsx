@@ -29,7 +29,12 @@ export function ItineraryView({ onEditPreferences }: ItineraryViewProps) {
   const [activeDay, setActiveDay] = useState(1)
   const [viewMode, setViewMode] = useState<"list" | "map">("list")
 
+  console.log("🔍 ItineraryView - itineraryData:", itineraryData)
+  console.log("🔍 ItineraryView - itinerary array:", itineraryData?.itinerary)
+  console.log("🔍 ItineraryView - itinerary length:", itineraryData?.itinerary?.length)
+
   if (!itineraryData || !itineraryData.itinerary || itineraryData.itinerary.length === 0) {
+    console.log("❌ No itinerary data found, showing empty message")
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-muted-foreground">{t("itinerary.noItinerary")}</p>
