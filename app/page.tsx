@@ -10,7 +10,6 @@ import type { DayItinerary } from "@/lib/mock-data"
 type AppScreen = "setup" | "loading" | "itinerary"
 
 export default function Page() {
-  console.log("[v0] Page mounted, app is loading correctly")
   const [screen, setScreen] = useState<AppScreen>("setup")
   const [preferences, setPreferences] = useState<UserPreferences | null>(null)
   const [itinerary, setItinerary] = useState<DayItinerary[]>([])
