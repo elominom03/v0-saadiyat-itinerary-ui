@@ -1,0 +1,15 @@
+{
+  "buildCommand": "pnpm build && npx prisma generate",
+  "framework": "nextjs",
+  "installCommand": "pnpm install",
+  "env": {
+    "DATABASE_URL": "@database-url",
+    "GEMINI_API_KEY": "@gemini-api-key"
+  },
+  "build": {
+    "env": {
+      "DATABASE_URL": "@database-url",
+      "GEMINI_API_KEY": "@gemini-api-key"
+    }
+  }
+}

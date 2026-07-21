@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = []
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model UserSession {
+  id              String   @id @default(cuid())
+  arrivalTime     DateTime
+  departureTime   DateTime
+  hotelLocation   String?
+  pace            String   // relaxed, balanced, maximize
+  interests       String   // JSON array of interests
+  preferences     String?  // JSON object: dietary, walking, etc.
+  tripType        String   @default("solo") // solo, family
+  familyMembers   String?  // JSON array: [{age: 5, type: "child"}, {age: 35, type: "adult"}]
+  recommendations String?  // JSON object: {text: "...", places: ["..."]}
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  itineraries     Itinerary[]
+}
+
+model Attraction {
+  id                String   @id @default(cuid())
+  name              String
+  category          String   // museum, cafe, beach, etc.
+  themes            String   // JSON array: modern art, cubism, etc.
+  indoorOutdoor     String   // indoor, outdoor, mixed
+  locationCluster   String   // Saadiyat zones
+  avgDuration       Int      // in minutes
+  crowdLevel        String   // low, medium, high
+  heatSensitivity   String   // low, high
+  description       String
+  shortDescription  String?
+  ticketRequired    Boolean  @default(false)
+  walkingDistance   String?
+  image             String?
+  tips              String?  // JSON array
+  lat               Float?
+  lng               Float?
+  openingHours      String?  // e.g., "10:00 AM - 6:00 PM"
+  openingDays       String?  // e.g., "Tue-Sun" or "Daily"
+  ticketPrice       String?  // e.g., "AED 63" or "Free"
+  website           String?
+  phone             String?
+  googleRating      Float?   // Google star rating (1.0 - 5.0)
+  googleReviews     Int?     // Number of Google reviews
+  kidFriendly       Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  itineraries       Itinerary[]
+}
+
+model Itinerary {
+  id             String   @id @default(cuid())
+  sessionId      String
+  dayNumber      Int
+  timeBlock      String   // morning, afternoon, evening
+  attractionId   String
+  reasoningText  String?
+  timeRange      String?  // e.g., "10:00 - 12:30"
+  whyChosen      String?
+  createdAt      DateTime @default(now())
+  
+  session        UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  attraction     Attraction  @relation(fields: [attractionId], references: [id])
+  
+  @@unique([sessionId, dayNumber, timeBlock])
+}

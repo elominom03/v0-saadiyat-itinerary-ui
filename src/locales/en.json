@@ -1,0 +1,103 @@
+{
+  "common": {
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip",
+    "generate": "Generate Itinerary",
+    "loading": "Loading..."
+  },
+  "setup": {
+    "title": "Your Saadiyat Layover, Curated",
+    "subtitle": "Designed around your time. Optimized for a smooth layover.",
+    "tripType": {
+      "title": "Who's traveling?",
+      "subtitle": "Help us tailor your itinerary to your group",
+      "label": "Trip Type",
+      "solo": "Solo Traveler",
+      "soloDesc": "Just me, maximum flexibility",
+      "family": "Family Trip",
+      "familyDesc": "Traveling with family members",
+      "familyMembers": "Family Members",
+      "addAdult": "Add Adult",
+      "addChild": "Add Child",
+      "childAge": "Child's age (0-17)",
+      "yearsOld": "years old",
+      "atLeastOne": "Add at least one family member to continue",
+      "groupSummary": "Your group",
+      "adults": "adult(s)",
+      "children": "child(ren)",
+      "youngKidsNote": "We'll add extra time for young children"
+    },
+    "layover": {
+      "title": "Layover Details",
+      "arrival": "Arrival",
+      "departure": "Departure",
+      "hotel": "Hotel (optional)",
+      "hotelPlaceholder": "e.g., Saadiyat Rotana"
+    },
+    "pace": {
+      "title": "Your Pace",
+      "subtitle": "How do you like to explore?",
+      "relaxed": "Relaxed",
+      "relaxedDesc": "2-3 key experiences, plenty of breathing room",
+      "balanced": "Balanced",
+      "balancedDesc": "3-4 curated highlights, well-paced",
+      "maximize": "Maximize",
+      "maximizeDesc": "Fit in as much as possible"
+    },
+    "interests": {
+      "title": "What excites you?",
+      "subtitle": "Select all that interest you",
+      "art": "Art & Museums",
+      "culture": "Culture & Heritage",
+      "beach": "Beach & Relaxation",
+      "dining": "Fine Dining",
+      "architecture": "Architecture",
+      "nature": "Nature & Wildlife",
+      "extras": "Any special preferences?",
+      "dietary": "Dietary restrictions",
+      "lowWalking": "Prefer less walking",
+      "exhibits": "Must-see exhibits"
+    },
+    "recommendations": {
+      "title": "Got recommendations?",
+      "subtitle": "Share suggestions from friends or online guides",
+      "uploadTitle": "Option 1: Upload Screenshot",
+      "uploadDesc": "From Instagram, TripAdvisor, or friend's messages",
+      "uploadButton": "Upload a screenshot",
+      "pasteTitle": "Option 2: Paste Text",
+      "pastePlaceholder": "Paste recommendations here... e.g., 'You should definitely visit the Louvre Abu Dhabi and try Fouquet's for lunch!'",
+      "extractButton": "Extract Place Names",
+      "extracting": "Analyzing...",
+      "foundPlaces": "Recommended Places",
+      "foundCount": "found",
+      "prioritizeNote": "We'll prioritize these places in your itinerary if they match your interests"
+    }
+  },
+  "itinerary": {
+    "title": "Your Itinerary",
+    "day": "Day",
+    "experiences": "experiences",
+    "viewDetails": "View Details",
+    "export": "Export & Share",
+    "downloadMap": "Download Google Map",
+    "downloadMapDesc": "Get a KML file to import into Google My Maps",
+    "regenerate": "Adjust & Regenerate",
+    "whyPicked": "Why we picked this",
+    "localTips": "Local Tips",
+    "duration": "Duration",
+    "indoor": "Indoor",
+    "outdoor": "Outdoor",
+    "ticketRequired": "Ticket required",
+    "googleRating": "Google Rating",
+    "openingHours": "Opening Hours",
+    "ticketPrice": "Price"
+  },
+  "loading": {
+    "title": "Crafting Your Perfect Itinerary",
+    "analyzing": "Analyzing your preferences",
+    "optimizing": "Optimizing for crowd distribution",
+    "generating": "Generating personalized recommendations",
+    "finalizing": "Finalizing your itinerary"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "sourceLanguage": "en",
+  "targetLanguages": ["ar"],
+  "sourceFolder": "src/locales",
+  "outputFormat": "nested"
+}
